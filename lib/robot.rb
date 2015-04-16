@@ -1,40 +1,33 @@
+include Math
+
 class Robot
-  Direction=Struct.new(:name,:x,:y)
-
-  def initialize table
-    @table = table 
-  end
-
-  def place x, y, direction
-    compass=[
-       Direction.new("north",0, 1),
-       Direction.new("east",1, 0),
-       Direction.new("south",-1,0),
-       Direction.new("west",0,-1)
-    ]
-    @x,@y = @table.contains(x.to_i, y.to_i) || nil
-    @compass = compass.rotate(compass.index{|d| d.name==direction}) || nil if 
-                                    compass.index{|d| d.name==direction} && @x && @y
-    return @x,@y,@compass
+  def initialize(x=0, y=0, facing=0.0, table=nil)
+    @x, @y, @facing, @table = x.to_i, y.to_i, facing.to_f, table
   end
 
   def move
-    @x, @y = @table.contains(@x+@compass.first.x, @y+@compass.first.y) || [@x, @y]
+    place @x+cos(PI*@facing), @y+sin(PI*@facing), @facing, @table
   end
 
   def left
-    @compass = @compass.rotate(-1)
+    place @x, @y, (@facing+0.5)%2.0, @table
   end
 
   def right
-    @compass = @compass.rotate
+    place @x, @y, (@facing-0.5)%2.0, @table
   end
 
   def report
-    puts "#{@x},#{@y},#{@compass.first.name.upcase}" if placed?
+    puts "#{@x},#{@y},#{@facing}" if @table.instance_of? Table
+    self
   end
 
-  private def placed?
-    @x && @y && @compass
+  def place(x, y, facing, table)
+    if (table.instance_of?(Table) && table.contains(x.to_i, y.to_i))
+      Robot.new(x, y, facing, table)
+    else
+      self
+    end
   end
 end
+
