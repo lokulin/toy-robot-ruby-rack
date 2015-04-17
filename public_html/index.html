@@ -1,8 +1,95 @@
+<!DOCTYPE html>
 <html>
 <head>
-<title>My Webpage</title>
+  <style type="text/css">
+    body {
+      background-color: #FFF;
+      margin: 30px;
+      margin-top: 10px;
+    }
+    #contentContainer {
+      width: 400px;
+      height: 400px;
+      border: 5px black solid;
+      overflow: hidden;
+      background-color: #F2F2F2;
+      cursor: pointer;
+    }
+    #thing {
+      position: relative;
+      left: -50px;
+      top: -50px;
+      transition: left .5s ease-in, top .5s ease-in;
+      width: 25%;
+      height: 25%;
+    }
+  </style>
+
+  <script>
+    function getClickPosition(e) {
+      var parentPosition = getPosition(e.currentTarget);
+      var xPosition = e.clientX - parentPosition.x - (theThing.clientWidth / 2);
+      var yPosition = e.clientY - parentPosition.y - (theThing.clientHeight / 2);
+      
+      xPosition = ((Math.floor(((e.clientX - parentPosition.x) / container.clientWidth) * 4)+0.5) * (container.clientWidth / 4)) - (theThing.clientWidth / 2);
+      yPosition = ((Math.floor(((e.clientY - parentPosition.y) / container.clientHeight) * 4)+0.5) * (container.clientHeight / 4)) - (theThing.clientHeight / 2);
+
+      theThing.style.left = xPosition + "px";
+      theThing.style.top = yPosition + "px";
+
+      var mx = Math.floor(((e.clientX - parentPosition.x) / container.clientWidth) * 4);
+      var my = Math.floor(((e.clientY - parentPosition.y) / container.clientHeight) * 4);
+      loadXMLDoc('robot/place/'+mx+'/'+my+'/north');
+    }
+     
+    function getPosition(element) {
+      var xPosition = 0;
+      var yPosition = 0;
+        
+      while (element) {
+          xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+          yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
+          element = element.offsetParent;
+      }
+      return { x: xPosition, y: yPosition };
+    }
+
+  function loadXMLDoc(method) {
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+          var robot = JSON.parse(this.responseText);
+          document.getElementById("x").innerHTML=robot.x;
+          document.getElementById("y").innerHTML=robot.y;
+          document.getElementById("facing").innerHTML=robot.facing;
+        }
+      }
+      xmlhttp.open("GET",method,true);
+      xmlhttp.send();
+    }
+  </script>
 </head>
 <body>
-<h1>Welcome to my website!</h1>
+
+  <div id="robot"><span id="x">-</span>:<span id="y">-</span>:<span id="facing">-</span></div>
+
+  <button type="button" onclick="loadXMLDoc('robot/place/0/0/north')">Reset</button>
+  <button type="button" onclick="loadXMLDoc('robot/left')">Left</button>
+  <button type="button" onclick="loadXMLDoc('robot/move')">Move</button>
+  <button type="button" onclick="loadXMLDoc('robot/right')">Right</button>
+  <button type="button" onclick="loadXMLDoc()">Move</button>
+
+  <div id="contentContainer">
+    <img id="thing" src="/images/robot_ruby.svg">
+  </div>
+  <div id="robot"><span id="mx">-</span>:<span id="my">-</span></div>
+
+<script>
+    var theThing = document.querySelector("#thing");
+    var container = document.querySelector("#contentContainer");
+     
+    container.addEventListener("click", getClickPosition, false);
+</script> 
+
 </body>
 </html>
