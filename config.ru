@@ -5,9 +5,9 @@ require 'oj'
 
 Oj.default_options = {:mode => :compat }
 
-use Rack::Session::Cookie, :secret => 'toast',
-                           :old_secret => 'toast',
-                           :expire_after => 2592000
+use Rack::Session::Cookie, :secret => ENV['COOKIE_SECRET'],
+                           :old_secret => ENV['OLD_COOKIE_SECRET'],
+                           :expire_after => 3153600000
 
 use Rack::Static, :urls => { "" => "index.html" } , :root => "public_html", :index => "index.html"
 
