@@ -1,7 +1,7 @@
 include Math
 
 class Robot
-  def initialize(x=0.0, y=0.0, facing=0.0, table=nil)
+  def initialize(x=0.0, y=0.0, facing=0.5, table=nil)
     @x, @y, @facing, @table = x.to_f, y.to_f, facing.to_f, table
   end
 
