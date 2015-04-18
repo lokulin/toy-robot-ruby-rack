@@ -6,8 +6,6 @@ require 'rack/rewrite'
 require 'omniauth/strategies/github' 
 require 'oj'
 
-Oj.default_options = {:mode => :compat }
-
 use Rack::Session::Cookie, :secret => ENV['COOKIE_SECRET'],
                            :old_secret => ENV['OLD_COOKIE_SECRET'],
                            :domain => 'lauchlin.com',
@@ -67,6 +65,7 @@ map '/robot/' do
                                     args[2] = {east: 0.0, north: 0.5, west: 1.0, south: 1.5}[args[2].to_sym] if cmd == 'place'
                                     robot.send(cmd, *args)
                                   end
+    Oj.default_options = {:mode => :compat }
     puts Oj.dump(env['rack.session'][:robot])
     [200, {'Content-Type' => 'text/json'}, [Oj.dump(env['rack.session'][:robot])]] 
   }
