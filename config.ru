@@ -33,7 +33,7 @@ use Rack::Rewrite do
 end
 
 map '/auth/github/callback' do
-  run lambda do |env|
+  run lambda { |env|
     auth = env['omniauth.auth']
     if auth['credentials'].fetch('token', nil)
         env['rack.session'][:user_id] = auth['info']['nickname']
@@ -44,7 +44,7 @@ map '/auth/github/callback' do
     
     [301, {'Content-Type' => 'text/html',
            'Location' => '#{out}' }, ['']]
-  end
+  }
 end
 
 map '/auth/failure' do
