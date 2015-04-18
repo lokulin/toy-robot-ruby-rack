@@ -7,40 +7,49 @@
       margin: 30px;
       margin-top: 10px;
     }
-    #contentContainer {
-      width: 400px;
-      height: 400px;
+    #table {
+      width: 75vw;
+      height: 75vw;
+      max-height: 75vh;
+      max-width: 75vh;
       border: 5px black solid;
       overflow: hidden;
       background-color: #F2F2F2;
       cursor: pointer;
+      margin: auto;
+      position: absolute;
+      top:0;bottom:0;
+      left:0;right:0;
+      transform: rotateX(180deg);
     }
-    #thing {
+    #toyRobot {
       position: relative;
-      left: -50px;
-      top: -50px;
-      transition: left .5s ease-in, top .5s ease-in;
-      width: 25%;
-      height: 25%;
+      left: 0px;
+      top: 0px;
+      transition: left .5s linear, top .5s linear, transform .5s linear;
+      width: 20%;
+      height: 20%;
+      transform: rotateZ(180deg);
     }
   </style>
 
   <script>
+
+    function animateRobot(robot) {
+      xPosition = ((robot.x + 0.5) * (table.clientWidth / 5)) - (toyRobot.clientWidth / 2);
+      yPosition = ((robot.y + 0.5) * (table.clientHeight / 5)) - (toyRobot.clientHeight / 2);
+     
+      toyRobot.style.left = xPosition + "px";
+      toyRobot.style.top = yPosition + "px";
+      toyRobot.style.transform = "rotateZ(" + ((robot.facing*180)-90) + "deg)";
+    }
+
     function getClickPosition(e) {
       var parentPosition = getPosition(e.currentTarget);
-      var xPosition = e.clientX - parentPosition.x - (theThing.clientWidth / 2);
-      var yPosition = e.clientY - parentPosition.y - (theThing.clientHeight / 2);
-      
-      xPosition = ((Math.floor(((e.clientX - parentPosition.x) / container.clientWidth) * 4)+0.5) * (container.clientWidth / 4)) - (theThing.clientWidth / 2);
-      yPosition = ((Math.floor(((e.clientY - parentPosition.y) / container.clientHeight) * 4)+0.5) * (container.clientHeight / 4)) - (theThing.clientHeight / 2);
-
-      theThing.style.left = xPosition + "px";
-      theThing.style.top = yPosition + "px";
-
-      var mx = Math.floor(((e.clientX - parentPosition.x) / container.clientWidth) * 4);
-      var my = Math.floor(((e.clientY - parentPosition.y) / container.clientHeight) * 4);
-      loadXMLDoc('robot/place/'+mx+'/'+my+'/north');
-    }
+      var mx = Math.floor(((e.clientX - parentPosition.x) / table.clientWidth) * 5);
+      var my = 4 - Math.floor(((e.clientY - parentPosition.y) / table.clientHeight) * 5);
+      placeRobot(robot,mx,my,'south');
+    };
      
     function getPosition(element) {
       var xPosition = 0;
@@ -52,43 +61,87 @@
           element = element.offsetParent;
       }
       return { x: xPosition, y: yPosition };
-    }
+    };
 
-  function loadXMLDoc(method) {
-      var xmlhttp = new XMLHttpRequest();
-      xmlhttp.onreadystatechange=function() {
-        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-          var robot = JSON.parse(this.responseText);
-          document.getElementById("x").innerHTML=robot.x;
-          document.getElementById("y").innerHTML=robot.y;
-          document.getElementById("facing").innerHTML=robot.facing;
+  function doReq(method,robot) {
+      var req = new XMLHttpRequest();
+      req.robot = robot
+      req.onreadystatechange=function(){
+        if (req.readyState==4 && req.status==200) {
+          updateRobot(this.robot, JSON.parse(this.responseText));
         }
       }
-      xmlhttp.open("GET",method,true);
-      xmlhttp.send();
+      req.open("GET",method,true);
+      req.send();
+  };
+
+  function Robot(x,y,facing) {
+    this.x = x;
+    this.y = y;
+    this.facing = facing;
+  };
+
+  function updateRobot(robot, newRobot) {
+    robot.x = newRobot.x;
+    robot.y = newRobot.y;
+    robot.facing = newRobot.facing;
+    animateRobot(robot);
+  }
+
+  function moveRobot(robot) {
+    doReq('robot/move',robot);
+  };
+
+  function leftRobot(robot) {
+    doReq('robot/left',robot);
+  };
+
+  function rightRobot(robot) {
+    doReq('robot/right',robot);
+  };
+
+  function placeRobot(robot,x,y,facing) {
+    doReq('robot/place/'+x+'/'+y+'/'+facing,robot);
+  };
+
+  function reportRobot(robot) {
+    doReq('robot/report', robot);
+  }
+
+  document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    switch(evt.keyCode) {
+    case 37:
+        leftRobot(robot);
+        break;
+    case 38:
+        moveRobot(robot);
+        break;
+    case 39:
+        rightRobot(robot);
+        break;
     }
+  };
+
+  var robot=new Robot(-1,-1,0.5);
   </script>
 </head>
 <body>
 
-  <div id="robot"><span id="x">-</span>:<span id="y">-</span>:<span id="facing">-</span></div>
-
-  <button type="button" onclick="loadXMLDoc('robot/place/0/0/north')">Reset</button>
-  <button type="button" onclick="loadXMLDoc('robot/left')">Left</button>
-  <button type="button" onclick="loadXMLDoc('robot/move')">Move</button>
-  <button type="button" onclick="loadXMLDoc('robot/right')">Right</button>
-  <button type="button" onclick="loadXMLDoc()">Move</button>
-
-  <div id="contentContainer">
-    <img id="thing" src="/images/robot_ruby.svg">
+  <button type="button" onclick="placeRobot(robot,0,0,'south')">Reset</button>
+  <button type="button" onclick="leftRobot(robot)">Left</button>
+  <button type="button" onclick="moveRobot(robot)">Move</button>
+  <button type="button" onclick="rightRobot(robot)">Right</button>
+  <button type="button" onclick="reportRobot(robot)">Report</button>
+  <div id="table">
+    <img id="toyRobot" src="/images/robot_ruby.svg">
   </div>
-  <div id="robot"><span id="mx">-</span>:<span id="my">-</span></div>
 
 <script>
-    var theThing = document.querySelector("#thing");
-    var container = document.querySelector("#contentContainer");
-     
-    container.addEventListener("click", getClickPosition, false);
+    var toyRobot = document.querySelector("#toyRobot");
+    var table = document.querySelector("#table");
+    table.addEventListener("click", getClickPosition, false);
+    reportRobot(robot);
 </script> 
 
 </body>

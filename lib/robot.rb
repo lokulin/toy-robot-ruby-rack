@@ -1,8 +1,8 @@
 include Math
 
 class Robot
-  def initialize(x=0, y=0, facing=0.0, table=nil)
-    @x, @y, @facing, @table = x.to_i, y.to_i, facing.to_f, table
+  def initialize(x=0.0, y=0.0, facing=0.0, table=nil)
+    @x, @y, @facing, @table = x.to_f, y.to_f, facing.to_f, table
   end
 
   def move
@@ -10,11 +10,11 @@ class Robot
   end
 
   def left
-    place @x, @y, (@facing+0.5)%2.0, @table
+    place @x, @y, (@facing+0.5), @table
   end
 
   def right
-    place @x, @y, (@facing-0.5)%2.0, @table
+    place @x, @y, (@facing-0.5), @table
   end
 
   def report

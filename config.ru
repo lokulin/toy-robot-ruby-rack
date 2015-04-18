@@ -6,7 +6,8 @@ require 'oj'
 Oj.default_options = {:mode => :compat }
 
 use Rack::Session::Cookie, :secret => 'toast',
-                           :old_secret => 'toast'
+                           :old_secret => 'toast',
+                           :expire_after => 2592000
 
 use Rack::Static, :urls => { "" => "index.html" } , :root => "public_html", :index => "index.html"
 
@@ -24,18 +25,16 @@ map '/robot/' do
                                     else
                                       cmd, *args = path.split("/").drop(2)
                                       args[3] = Table.new(0,0,4,4) if cmd == "place"
+                                      args[2] = {east: 0.0, north: 0.5, west: 1.0, south: 1.5}[args[2].to_sym] if cmd == "place"
                                       robot.send(cmd, *args)
                                     end
 
-      puts Oj.dump(env['rack.session'][:robot])
       [200, {'Content-Type' => 'text/json'}, [Oj.dump(env['rack.session'][:robot])]] 
     else
       [404, {'Content-Type' => 'text/html'}, ['404 No such method']] 
     end
   }
 end
-
-#run Proc.new { |env| [404, {'Content-Type' => 'text/html'}, ['404 No such method']] }
 
 run Rack::URLMap.new( {
   "/"    => Rack::Directory.new( "public_html" )
