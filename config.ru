@@ -1,10 +1,11 @@
 require_relative 'lib/robot'
 require_relative 'lib/table'
+require 'oj'
+require 'multi_json'
 require 'rack'
 require 'rack/cors'
 require 'rack/rewrite' 
 require 'omniauth/strategies/github' 
-#require 'oj'
 
 use Rack::Session::Cookie, :secret => ENV['COOKIE_SECRET'],
                            :old_secret => ENV['OLD_COOKIE_SECRET'],
@@ -65,7 +66,8 @@ map '/robot/' do
                                     args[2] = {east: 0.0, north: 0.5, west: 1.0, south: 1.5}[args[2].to_sym] if cmd == 'place'
                                     robot.send(cmd, *args)
                                   end
-    [200, {'Content-Type' => 'text/json'}, [MultiJson.dump(env['rack.session'][:robot])]] 
+    puts Oj.dump(env['rack.session'][:robot])
+    [200, {'Content-Type' => 'text/json'}, [Oj.dump(env['rack.session'][:robot])]] 
   }
 end
 

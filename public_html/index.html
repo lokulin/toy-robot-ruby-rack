@@ -71,7 +71,7 @@
           updateRobot(this.robot, JSON.parse(this.responseText));
         }
       }
-      req.open("GET","http://api-toyrobot.lauchlin.com/"+method,true);
+      req.open("GET",method,true);
       req.send();
   };
 
