@@ -23,7 +23,7 @@ end
 use Rack::Static, :urls => { '' => 'index.html' } , :root => 'public_html', :index => 'index.html'
 
 use OmniAuth::Builder do
-  provider :github, ENV['GIT_KEY'], ENV['GIT_SECRET']
+  provider :github, ENV['GIT_KEY'], ENV['GIT_SECRET'], { provider_ignores_state: true }
 end
 
 use Rack::Rewrite do
