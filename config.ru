@@ -43,7 +43,7 @@ map '/auth/github/callback' do
     end 
     
     [301, {'Content-Type' => 'text/html',
-           'Location' => '#{out}' }, ['']]
+           'Location' => "#{out}" }, ['']]
   }
 end
 
