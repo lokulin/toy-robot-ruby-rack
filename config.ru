@@ -24,12 +24,6 @@ use OmniAuth::Builder do
   provider :github, ENV['GIT_KEY'], ENV['GIT_SECRET'], { provider_ignores_state: true }
 end
 
-use Rack::Rewrite do
-  r301 %r{/(.*)}, '/auth/github', :not => %r{/auth/(.*)}, :if => Proc.new {|env|
-    env['rack.session'][:user_id].nil?
-  }
-end
-
 map '/auth/github/callback' do
   run lambda { |env|
     auth = env['omniauth.auth']
@@ -52,7 +46,7 @@ end
 map '/robot/' do
   run lambda { |env|
     if env['rack.session'][:user_id].nil?
-      [200, {'Content-Type' => 'text/json'}, [Oj.dump({redirect: 'http://api-toyrobot.lauchlin.com/auth/github')]]
+      [200, {'Content-Type' => 'text/json'}, [Oj.dump({redirect: 'http://api-toyrobot.lauchlin.com/auth/github'})]]
     else
       req = Rack::Request.new(env) 
       path = req.path[%r(^/robot/(move|left|right|report|place/\d+/\d+/(north|east|south|west))$)]
