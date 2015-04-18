@@ -18,7 +18,7 @@ class Robot
   end
 
   def report
-    puts "#{@x},#{@y},#{@facing}" if @table.instance_of? Table
+    #puts "#{@x},#{@y},#{@facing}" if @table.instance_of? Table
     self
   end
 
