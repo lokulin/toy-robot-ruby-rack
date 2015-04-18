@@ -8,13 +8,13 @@ Oj.default_options = {:mode => :compat }
 
 use Rack::Session::Cookie, :secret => ENV['COOKIE_SECRET'],
                            :old_secret => ENV['OLD_COOKIE_SECRET'],
-                           :domain => '.lauchlin.com',
+                           :domain => 'lauchlin.com',
                            :expire_after => 3153600000
 
 use Rack::Cors do
   allow do
     origins 'www.lauchlin.com'
-    resource '*', :headers => :any, :methods => :get
+    resource '*', :headers => :any, :methods => :get, :credentials => true
   end
 end
 
