@@ -29,7 +29,7 @@ map '/auth/github/callback' do
     auth = env['omniauth.auth']
     if auth['credentials'].fetch('token', nil)
         env['rack.session'][:user_id] = auth['info']['nickname']
-      out=env['omniauth.origin'] || '/robot/report'
+      out='http://www.lauchlin.com/toyrobot/'
     else
       out='/auth/failure'
     end 
