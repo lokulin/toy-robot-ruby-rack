@@ -1,5 +1,7 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gem "rack"
-gem "oj"
+gem 'rack'
+gem 'rack-rewrite'
 gem 'rack-cors'
+gem 'omniauth-github'
+gem 'oj'
