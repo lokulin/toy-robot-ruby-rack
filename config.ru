@@ -4,7 +4,6 @@ require 'oj'
 require 'multi_json'
 require 'rack'
 require 'rack/cors'
-require 'rack/rewrite' 
 require 'omniauth/strategies/github' 
 
 use Rack::Session::Cookie, :secret => ENV['COOKIE_SECRET'],
@@ -52,22 +51,26 @@ end
 
 map '/robot/' do
   run lambda { |env|
-    req = Rack::Request.new(env) 
-    path = req.path[%r(^/robot/(move|left|right|report|place/\d+/\d+/(north|east|south|west))$)]
-    robot = env['rack.session'][:robot]
-    robot ||= Robot.new
-    robot.freeze
+    if env['rack.session'][:user_id].nil?
+      [200, {'Content-Type' => 'text/json'}, [Oj.dump({redirect: 'http://api-toyrobot.lauchlin.com/auth/github')]]
+    else
+      req = Rack::Request.new(env) 
+      path = req.path[%r(^/robot/(move|left|right|report|place/\d+/\d+/(north|east|south|west))$)]
+      robot = env['rack.session'][:robot]
+      robot ||= Robot.new
+      robot.freeze
 
-    env['rack.session'][:robot] = if path.nil?
-                                    robot
-                                  else
-                                    cmd, *args = path.split('/').drop(2)
-                                    args[3] = Table.new(0,0,4,4) if cmd == 'place'
-                                    args[2] = {east: 0.0, north: 0.5, west: 1.0, south: 1.5}[args[2].to_sym] if cmd == 'place'
-                                    robot.send(cmd, *args)
-                                  end
-    puts Oj.dump(env['rack.session'][:robot])
-    [200, {'Content-Type' => 'text/json'}, [Oj.dump(env['rack.session'][:robot])]] 
+      env['rack.session'][:robot] = if path.nil?
+                                      robot
+                                    else
+                                      cmd, *args = path.split('/').drop(2)
+                                      args[3] = Table.new(0,0,4,4) if cmd == 'place'
+                                      args[2] = {east: 0.0, north: 0.5, west: 1.0, south: 1.5}[args[2].to_sym] if cmd == 'place'
+                                      robot.send(cmd, *args)
+                                    end
+      puts Oj.dump(env['rack.session'][:robot])
+      [200, {'Content-Type' => 'text/json'}, [Oj.dump(env['rack.session'][:robot])]]
+    end
   }
 end
 
