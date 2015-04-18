@@ -1,6 +1,7 @@
 require_relative 'lib/robot'
 require_relative 'lib/table'
 require 'rack'
+require 'rack/cors'
 require 'oj'
 
 Oj.default_options = {:mode => :compat }
